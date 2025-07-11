@@ -8,4 +8,10 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        host: 'task-manager.local',
+        hmr: {
+            host: 'task-manager.local',
+        },
+    },
 });
