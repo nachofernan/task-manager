@@ -1,0 +1,140 @@
+🔷 Objetivo del Sistema
+Un Task Manager básico debe permitir planificar, asignar, monitorear y cerrar tareas dentro de una estructura jerárquica, asegurando trazabilidad, comunicación clara y visibilidad para los diferentes niveles de jerarquía.
+
+🧩 Elementos estructurales esenciales
+1. Roles y Jerarquías
+Jefe: acceso total a todas las tareas, puede crear, asignar, cerrar, reabrir y ver métricas generales.
+
+Subjefes: acceden a las tareas de su equipo, pueden crear y asignar tareas a empleados, y reportar al jefe.
+
+Empleados: reciben tareas, las marcan como completadas, dejan comentarios o solicitudes de ayuda.
+
+2. Usuarios y autenticación
+Cada persona debe tener un usuario único.
+
+El login debe identificar rol y departamento si existiera.
+
+Posible autenticación con dos factores si se desea escalar.
+
+🗂️ Módulos funcionales mínimos
+🧾 1. Gestión de Tareas
+Creación de tarea: título, descripción, prioridad, fecha límite, archivos adjuntos.
+
+Asignación: a un usuario o grupo.
+
+Estados: pendiente, en progreso, bloqueada, completada, cancelada.
+
+Historial de cambios: quién hizo qué y cuándo.
+
+📆 2. Calendario y vistas
+Vista por calendario (opcional): tareas distribuidas cronológicamente.
+
+Vista por listado: agrupadas por estado o persona.
+
+Filtro por responsable, estado, prioridad, fecha.
+
+💬 3. Comentarios y actividad
+Hilo de comentarios por tarea.
+
+Sistema de notificaciones internas: cuando se asigna, se comenta o se modifica una tarea.
+
+📊 4. Panel de control / métricas
+Para el jefe y los subjefes: número de tareas por estado, productividad por persona, vencidas vs completadas.
+
+Para empleados: resumen de sus tareas y próximos vencimientos.
+
+📁 5. Archivos adjuntos
+Subida de documentos o imágenes relevantes por tarea.
+
+Control de versiones si se desea escalar.
+
+📐 Criterios de diseño y arquitectura
+Escalabilidad
+Pensado para que se pueda adaptar a más personas, áreas o jerarquías.
+
+Modularidad
+Separación clara entre funcionalidades (usuarios, roles, tareas, reportes).
+
+Seguridad
+Reglas de acceso estrictas según rol.
+
+Registro de actividad (log de acciones).
+
+Proyectividad
+Se puede extender fácilmente con nuevas funcionalidades como:
+
+Notificaciones por mail.
+
+Integración con Google Calendar o Slack.
+
+Módulo de evaluación de desempeño basado en tareas.
+
+----------------------------------
+
+🧠 Algunas sugerencias específicas por funcionalidad
+🧾 Gestión de Tareas
+Modelos: Tarea, Estado, Prioridad, UsuarioAsignado.
+
+Enum nativo de PHP: para estados (Pendiente, En Proceso, etc.).
+
+Políticas de acceso: basadas en roles (ya con Spatie Permission).
+
+Spatie Activitylog: log automático de creación, asignación, estado y comentarios.
+
+💬 Comentarios en tareas
+Usá un modelo Comment polimórfico para adjuntar a tareas u otras entidades (futuras versiones).
+
+Campos: contenido, user_id, visible_para, timestamp.
+
+📎 Archivos adjuntos
+Spatie Media Library permite:
+
+Asociar archivos a cualquier modelo (Task en este caso).
+
+Conversiones automáticas de imagen.
+
+Almacenamiento local o en S3/GCS si escalás.
+
+🔔 Notificaciones
+Laravel Notifications permite:
+
+Notificaciones por email, base de datos o broadcast (usando Pusher o Laravel Echo).
+
+Canal de notificación si alguien comenta en tu tarea o cambia su estado.
+
+📊 Dashboard
+Filament: moderno, flexible y sin la complejidad/licencia de Nova.
+
+Livewire Charts: genera gráficos con estadísticas simples (tareas completadas por usuario, por semana, vencidas, etc.).
+
+O integrás Chart.js con Inertia y Vue si preferís esa pila.
+
+🚀 Etapas sugeridas para implementarlo por fases
+🔹 Versión 1: Funcional básica
+CRUD de tareas.
+
+Asignación manual.
+
+Roles y accesos.
+
+Comentarios simples.
+
+Historial de cambios.
+
+🔹 Versión 2: Productividad y reporting
+Panel con métricas.
+
+Filtros de tareas.
+
+Archivos adjuntos.
+
+Vistas tipo calendario.
+
+🔹 Versión 3: Profesional
+Tareas recurrentes.
+
+Subtareas.
+
+Notificaciones por Slack o email.
+
+API REST o integración con apps móviles.
