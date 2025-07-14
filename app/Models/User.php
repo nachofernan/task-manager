@@ -9,6 +9,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -19,6 +22,7 @@ class User extends Authenticatable
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -29,6 +33,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'department_id',
     ];
 
     /**
@@ -63,5 +68,52 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relación con el departamento al que pertenece el usuario
+     */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * Relación con las tareas asignadas al usuario
+     */
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_user_id');
+    }
+
+    /**
+     * Relación con las tareas creadas por el usuario
+     */
+    public function createdTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'created_by');
+    }
+
+    /**
+     * Obtener todas las tareas que el usuario puede ver
+     */
+    public function getVisibleTasks()
+    {
+        return Task::where(function ($query) {
+            // Tareas asignadas al usuario
+            $query->where('assigned_user_id', $this->id)
+                  // O tareas de su departamento
+                  ->orWhere('department_id', $this->department_id)
+                  // O tareas sin departamento (públicas)
+                  ->orWhereNull('department_id');
+        })->orWhere(function ($query) {
+            // Tareas de departamentos subordinados (si el usuario es superior jerárquico)
+            if ($this->department) {
+                $subordinateDepartments = $this->department->descendants()->pluck('id');
+                if ($subordinateDepartments->isNotEmpty()) {
+                    $query->whereIn('department_id', $subordinateDepartments);
+                }
+            }
+        });
     }
 }
