@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Livewire\TaskDashboard;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('dashboard');
+    // return view('welcome');
 });
 
 Route::middleware([

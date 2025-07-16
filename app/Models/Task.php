@@ -5,8 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Events\Deleting;
 
 class Task extends Model
 {
@@ -28,6 +30,16 @@ class Task extends Model
         'due_date' => 'date',
         'completed_at' => 'date',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Eliminar comentarios cuando se elimina la tarea
+        static::deleting(function ($task) {
+            $task->comments()->delete();
+        });
+    }
 
     // Constantes para prioridades
     const PRIORITY_LOW = 'low';
@@ -64,6 +76,24 @@ class Task extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Relación con los comentarios de la tarea
+     */
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    /**
+     * Comentarios principales (sin respuestas)
+     */
+    public function mainComments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable')
+                    ->whereNull('parent_id')
+                    ->with(['user', 'replies.user', 'replies.replies.user']);
     }
 
     /**

@@ -11,6 +11,7 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -115,5 +116,13 @@ class User extends Authenticatable
                 }
             }
         });
+    }
+
+    /**
+     * Relación con los comentarios creados por el usuario
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
     }
 }
